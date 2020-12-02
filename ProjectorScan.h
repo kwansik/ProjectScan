@@ -1,18 +1,23 @@
 #ifndef __ProjectorScan_h
 #define __ProjectorScan_h
 
-#include <user/Iop.h>
-#include <knobs/Knobs.h>
-#include <user/Row.h>
+// #include <user/Iop.h>
+// #include <knobs/Knobs.h>
+// #include <user/Row.h>
 #include <graphics/sys.h>
-#include <user_app/shuffle_view.h>
-#include <custom_widgets/KImageDisplayDialog.h>
+//#include <user_app/shuffle_view.h>
+// #include <custom_widgets/KImageDisplayDialog.h>
 #include "libmv/image/array_nd.h"
 #include "libmv/image/image.h"
-#include <user/LightNode.h>
+// #include <user/LightNode.h>
 #include <graphics/crop_ms.h>
+#include <graphics/sys.h>
 #include <graphics/texture_buffer_ms.h>
-#include <user_app/PointGrey.h>
+// #include <user_app/PointGrey.h>
+#include "Spinnaker.h"
+#include "SpinGenApi/SpinnakerGenApi.h"
+#include "PointGrey.h"
+
 #include <graphics/Timer.h>
 #include "libmv/camera/pinhole_camera.h"
 #include <opencv2/core.hpp>
@@ -22,7 +27,7 @@
 
 namespace user {
 
-class ProjectorScan :  public Iop
+class ProjectorScan // :  public Iop
 {
 	enum scan_mode
 	{
@@ -74,16 +79,18 @@ class ProjectorScan :  public Iop
 	size_t count_;
 	int num_camera_;
 	size_t preview_count_;
+	/*
 	Knob* scan_button_;
 	Knob* calibration_button_;
 	Knob* camera_release_button_;
 	Knob* test_button_;
 	Knob* exposure_knob_;
+	*/
 	std::vector<std::vector<int>> level_images_;
 	int proj_stat_;
 	std::vector<int> inverse_1_;
 	std::vector<int> inverse_2_;
-	static KImageDisplayDialog* device_;
+	// static KImageDisplayDialog* device_;
 	HANDLE handlePort_;
 
 	KLT_TrackingContext context_;
@@ -91,16 +98,18 @@ public:
 
 
 
-	ProjectorScan(UserNode* node);
+	//ProjectorScan(UserNode* node);
 	ProjectorScan();
 	
 	~ProjectorScan();
-	int knob_changed(Knob* k);
-	void draw_handle(ViewerContext*);
-	void knobs(Knob_Callback f);
+
+	//int knob_changed(Knob* k);
+	//void draw_handle(ViewerContext*);
+	// void knobs(Knob_Callback f);
 	void _validate(bool);
-	void engine ( int y, int x, int r, ChannelMask channels, Row& out );
-	virtual void append(user::Hash& a); 
+	//void engine ( int y, int x, int r, ChannelMask channels, Row& out );
+	//
+	//virtual void append(Hash& a); 
 	const char* Class() const { return "ProjectorScan"; }
 	const char* node_help() const { return "ProjectorScan Iop"; }
 	int minimum_inputs() const { return 1; }
@@ -112,8 +121,8 @@ public:
 		}
 		return std::string("FaceNet");
 	}
-	bool test_input(int, Op*) const;
-	static const user::Op::Description d;
+	//bool test_input(int, Op*) const;
+	//static const user::Op::Description d;
 	//int knob_changed(Knob*);
 
 private:

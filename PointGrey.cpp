@@ -1,4 +1,4 @@
-#include <user_app/PointGrey.h>
+#include "PointGrey.h"
 
 #include <graphics/sys.h>
 #include <opencv2/world.hpp>

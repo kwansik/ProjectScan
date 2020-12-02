@@ -1,19 +1,21 @@
-#include "user_app/ProjectorScan.h"
+#include "ProjectorScan.h"
+/*
 #include <user/Row.h>
 #include <kernel/NodeWidget.h>
 #include <user/UserKernel.h>
 #include <knobs/Int_Knob.h>
 #include <user/KoonMath.h>
+*/
 #include <graphics/sys.h>
 #include <graphics/gl.h>
 #include <graphics/gl_extension.h>
 #include <graphics/frame.h>
 #include <graphics/Timer.h>
-#include <user/ViewerContext.h>
+// #include <user/ViewerContext.h>
 #include <QtWidgets/qdesktopwidget.h>
-#include <user/UserMaterial.h>
-#include <user/UserKernel.h>
-#include <user/DiskCache.h>
+//#include <user/UserMaterial.h>
+//#include <user/UserKernel.h>
+//#include <user/DiskCache.h>
 #include <opencv2/core.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
@@ -27,8 +29,8 @@
 #include "graphics/seed_fill.h"
 #include "libmv/tsai/camera_calibration.h"
 #include "graphics/barycentric.h"
-#include "neural_net/NNLayer.h"
-#include "user_app/NNFace.h"
+//#include "neural_net/NNLayer.h"
+//#include "user_app/NNFace.h"
 
 #include <random>
 
@@ -42,7 +44,7 @@ namespace user{
 static int kStart_y = 960;
 static int kEnd_y = 1320;
 bool ProjectorScan::initialized_;
-KImageDisplayDialog* ProjectorScan::device_;
+// KImageDisplayDialog* ProjectorScan::device_;
 
 
 int ProjectorScan::ConfigureTrigger(INodeMap& nodeMap, bool hardware)
@@ -248,7 +250,7 @@ void ProjectorScan::initCameraSystem()
 		CStringPtr ptrStringSerial = pCam->GetTLDeviceNodeMap().GetNode("DeviceSerialNumber");
 		size_t val = std::stoull(std::string(ptrStringSerial->GetValue()));
 		cameras.push_back(cam_id_struct(pCam, val));
-		std::string serialNumber = ptrStringSerial->GetValue();
+		std::string serialNumber(ptrStringSerial->GetValue()); //= ptrStringSerial->GetValue();
 
 		LOG("device serial number %s\n", serialNumber.c_str());
 	}
@@ -380,7 +382,7 @@ ProjectorScan::~ProjectorScan()
 	ReleaseCameraSystem();
 }
 
-ProjectorScan::ProjectorScan(UserNode* node) : Iop (node)
+ProjectorScan::ProjectorScan(void) // UserNode* node) : Iop (node)
 {
 	mode_ = Preview;
 	preview_count_ = 0;
@@ -405,8 +407,8 @@ ProjectorScan::ProjectorScan(UserNode* node) : Iop (node)
 	LOG("camera resolution %d, %d\n", cam_width_, cam_height_);
 	preview_height_ = cam_height_ /3; // preview height
 	preview_width_ = cam_width_/3 * cameras_.size(); 
-	info_.format(*UserKernel::Instance()->CreateFormat("Cameras Preview", preview_width_, preview_height_, 1.0));
-	inputs(0);
+	//info_.format(*UserKernel::Instance()->CreateFormat("Cameras Preview", preview_width_, preview_height_, 1.0));
+	// inputs(0);
 	camera_buffer_ = 0;
 
 
@@ -424,6 +426,8 @@ ProjectorScan::ProjectorScan(UserNode* node) : Iop (node)
 	preview_timer_.start();
 	initCameraProjectorGeometry();
 }
+
+/* 
 bool ProjectorScan::test_input(int in, Op* op) const
 {
 	if (in == 0) {
@@ -432,6 +436,8 @@ bool ProjectorScan::test_input(int in, Op* op) const
 
 	return false;
 }
+*/
+
 void 
 ProjectorScan::initCameraProjectorGeometry()
 {
@@ -502,14 +508,17 @@ ProjectorScan::initCameraProjectorGeometry()
 	projector_.SetIntrinsicProjection(K, R, t);
 	projector_.set_image_size(vec2(w, h));
 }
-ProjectorScan::ProjectorScan() : Iop(0)
-{
+//ProjectorScan::ProjectorScan() : Iop(0)
+//{
 
-}
+//}
 
 void ProjectorScan::initOutBuffer()
 {
-	camera_buffer_ = (unsigned char*)malloc(info_.w()*info_.h()*3 * cameras_.size());
+
+	//camera_buffer_ = (unsigned char*)malloc(info_.w()*info_.h()*3 * cameras_.size());
+	// ksk : this is a preview width and height
+	camera_buffer_ = (unsigned char*)malloc(1920 * 1080 * 3 * cameras_.size());
 
 	proj_buffer_ = (unsigned char*)malloc(proj_width_*proj_height_ * 3 * level_images_.size());
 	for (int i = 0; i < level_images_.size(); i++)
@@ -523,13 +532,15 @@ void ProjectorScan::initOutBuffer()
 }
 void ProjectorScan::project_pattern(int ith)
 {
-	if (device_) {
+	//if (device_) {
 		QImage im(&proj_buffer_[ith*proj_width_*proj_height_ * 3], proj_width_, proj_height_, QImage::Format_RGB888);
-		device_->set_image(&im);
+		//device_->set_image(&im);
 
-	}
+	//}
 
 }
+
+/* 
 void ProjectorScan::_validate(bool for_real) {
 	LOG("validate called\n");
 	info_.channels(Mask_RGBA);
@@ -573,10 +584,13 @@ void ProjectorScan::_validate(bool for_real) {
 
 
 }
-void ProjectorScan::draw_handle(ViewerContext* context)
-{
-}
+*/
 
+//void ProjectorScan::draw_handle(ViewerContext* context)
+//{
+//}
+
+/*
 void ProjectorScan::append(user::Hash& a)
 {
 
@@ -588,6 +602,7 @@ void ProjectorScan::append(user::Hash& a)
 	a.append(preview_count_);
 
 }
+*/
 
 void ProjectorScan::preview()
 {
@@ -658,6 +673,11 @@ inline bool has_this(std::vector<vec2>& s, vec2&b)
 #ifndef min
 #define min(a,b) (a>b?b:a)
 #endif
+// ksk
+#ifndef max
+#define max(a,b) (a>b?a:b)
+#endif
+
 void ProjectorScan::compute_projector_plane()
 {
 	int imsize = cam_width_ * cam_height_;
@@ -708,12 +728,12 @@ void ProjectorScan::compute_projector_plane()
 			if (v < 2 || v > proj_width_) continue;
 			if (graphics::kai_contain(xz_boards_2d, pnt)) {
 				xz_points[v].push_back(pnt);
-				max_v = std::max(max_v, v);
+				max_v = max(max_v, v); // ksk std::max( max_v, v);
 				min_v = min(min_v, v);
 			}
 			else if (graphics::kai_contain(yz_boards_2d, pnt)) {
 				yz_points[v].push_back(pnt);
-				max_v = std::max(max_v, v);
+				max_v = max(max_v, v); // std::max( max_v, v);
 				min_v = min(min_v, v);
 			}
 		}
@@ -856,7 +876,10 @@ void ProjectorScan::compute_projector_plane()
 		float v = proj_map[xx + yy * cam_width_];
 		if (v < 2.0) continue;
 
-		if (has_this(space_points2, vec2(v, xx))) continue;
+		// ksk
+		vec2 v2(v, xx);
+
+		if (has_this(space_points2, v2)) continue; // ksk  vec2(v, xx))) continue;
 
 		if (graphics::kai_contain(xz_boards_2d, pos)) {
 			line ray = pinhole_cameras_[0].ray(pos);
@@ -2146,10 +2169,11 @@ void ProjectorScan::scan()
 	mode_ = Preview;
 	preview_timer_.start();
 	
-	UserKernel::Instance()->UpdateViews();
+	//UserKernel::Instance()->UpdateViews();
 	stat.restore_stat();
 }
 
+/*
 void ProjectorScan::engine(int y, int x, int r, ChannelMask channels, Row& row) 
 {
 
@@ -2173,6 +2197,7 @@ void ProjectorScan::engine(int y, int x, int r, ChannelMask channels, Row& row)
 		}
 	}
 }
+
 
 #include "knobs/Knobs.h"
 int ProjectorScan::knob_changed(Knob* k)
@@ -2198,10 +2223,10 @@ int ProjectorScan::knob_changed(Knob* k)
 		ReleaseCameraSystem();
 	}
 	if (k == test_button_) {
-		/*construct_rectification_env();
-		compute_stereo();*/
+		// construct_rectification_env();
+		// compute_stereo(); 
 		//for (int i = 0; i < num_camera_; i++) {
-			compute_3d_point_cloud(0);
+			//compute_3d_point_cloud(0);
 		//}
 
 	}
@@ -2232,7 +2257,12 @@ static Iop* AddInputsCreate(UserNode* node) {return new ProjectorScan(node);}
 const Op::Description ProjectorScan::d("ProjectorScan", "ProjectorScan", AddInputsCreate);
 
 };
+*/
+
+};
 
  void KoonInitProjectorScan()
 {
 }
+
+ 

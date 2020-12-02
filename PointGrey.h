@@ -3,10 +3,11 @@
 #include "SpinGenApi/SpinnakerGenApi.h"
 #include <iostream>
 #include <sstream>
-#include <graphics/ivec.h>
+#include "graphics/ivec.h"
 
 #include <mutex>
 #include <QtGui/qimage.h>
+
 class PointGreyCapture {
 public:
 
